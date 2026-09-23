@@ -1,0 +1,26 @@
+{
+  "name": "codex-limits-widget",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Floating Windows monitor for two Codex accounts",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win portable",
+    "test": "node --test"
+  },
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^44.4.5",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "local.codex.limits.widget",
+    "productName": "Codex Limits",
+    "asar": true,
+    "electronLanguages": ["en-US"],
+    "files": ["main.js", "preload.js", "usage.js", "index.html", "renderer.js", "styles.css"],
+    "win": { "target": "portable", "signAndEditExecutable": false },
+    "portable": { "artifactName": "Codex Limits.exe" }
+  }
+}

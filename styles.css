@@ -1,0 +1,88 @@
+:root { color-scheme: dark; font-family: "Segoe UI", Arial, sans-serif; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; width: 100%; height: 100%; }
+body { background: #101114; color: #f5f5f6; overflow: hidden; }
+button { font: inherit; }
+.titlebar {
+  height: 43px; display: flex; align-items: center; justify-content: space-between;
+  padding-left: 15px; border-bottom: 1px solid #2b2d33; background: #18191d;
+  -webkit-app-region: drag; user-select: none;
+}
+.title { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 650; }
+#heartbeat, .short-name { display: none; }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #2ac86d; box-shadow: 0 0 10px #2ac86d77; }
+.window-actions { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-actions button {
+  width: 35px; height: 100%; border: 0; background: transparent; color: #a9abb3;
+  font-size: 20px; cursor: pointer;
+}
+.window-actions button:hover { background: #2a2c32; color: white; }
+.window-actions .close:hover { background: #b63340; }
+.window-actions #pin svg { width: 16px; height: 16px; fill: currentColor; vertical-align: middle; }
+.window-actions .active { color: #39c978; }
+main { height: calc(100% - 65px); padding: 11px 12px 7px; overflow: auto; }
+.account {
+  background: #1c1e22; border: 1px solid #303238; border-radius: 12px;
+  padding: 10px 12px 11px; margin-bottom: 10px;
+}
+.account:last-child { margin-bottom: 0; }
+.account-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; min-width: 0; }
+.account-heading > div { display: flex; align-items: baseline; gap: 8px; min-width: 0; overflow: hidden; white-space: nowrap; }
+.account-heading strong { font-size: 12px; flex: none; }
+.filename { font-size: 10px; color: #8d919b; flex: none; }
+.email { font-size: 10px; color: #8d919b; overflow: hidden; text-overflow: ellipsis; }
+.status { font-size: 10px; color: #aaaeb6; flex: none; max-width: 52%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status.ok { color: #50d086; }
+.status.error { color: #f3ad72; }
+.limits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.limit { min-width: 0; }
+.limit-name { color: #b7bbc5; font-size: 11px; margin-bottom: 3px; }
+.amount { display: flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+.percentage { font-size: 21px; line-height: 23px; font-weight: 700; letter-spacing: -.5px; }
+.remaining { font-size: 10px; color: #b7bbc5; }
+.track { width: 100%; height: 6px; background: #383b43; border-radius: 6px; overflow: hidden; margin-top: 7px; }
+.fill { height: 100%; width: 0; border-radius: inherit; background: #31c773; transition: width .4s ease; }
+.fill.low { background: #f0ad4e; }
+.fill.critical { background: #ec6565; }
+.reset { font-size: 10px; color: #a9adb5; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+footer { height: 22px; padding: 0 14px; color: #777c86; font-size: 10px; line-height: 17px; }
+@media (max-width: 400px) { .email { display: none; } .limits { gap: 8px; } }
+
+body.small .titlebar { height: 35px; padding-left: 10px; }
+body.small .title { gap: 7px; font-size: 11px; }
+body.small .window-actions button { width: 29px; font-size: 17px; }
+body.small main { height: calc(100% - 35px); padding: 7px; }
+body.small .account { padding: 7px 8px; margin-bottom: 6px; border-radius: 8px; }
+body.small .account:last-child { margin-bottom: 0; }
+body.small .account-heading { margin-bottom: 4px; }
+body.small .account-heading strong { font-size: 11px; }
+body.small .filename, body.small .email { display: none; }
+body.small .status { font-size: 9px; max-width: 48%; }
+body.small .limits { gap: 8px; }
+body.small .limit-name { font-size: 9px; margin-bottom: 1px; }
+body.small .percentage { font-size: 18px; line-height: 20px; }
+body.small .remaining { display: none; }
+body.small .track { height: 4px; margin-top: 4px; }
+body.small .reset { font-size: 9px; margin-top: 4px; }
+body.small footer { display: none; }
+
+body.super .titlebar { height: 29px; padding-left: 7px; }
+body.super .title { gap: 5px; font-size: 10px; }
+body.super .live-dot { width: 5px; height: 5px; }
+body.super #heartbeat { display: inline; color: #79dca0; font-size: 9px; font-weight: 400; }
+body.super .window-actions button { width: 22px; font-size: 14px; }
+body.super .window-actions #mode { font-size: 10px; font-weight: 700; }
+body.super .window-actions #pin svg { width: 12px; height: 12px; }
+body.super main { height: calc(100% - 29px); padding: 5px; }
+body.super .account { display: flex; align-items: center; gap: 7px; height: 36px; padding: 4px 6px; margin-bottom: 4px; border-radius: 6px; }
+body.super .account:last-child { margin-bottom: 0; }
+body.super .account-heading { flex: none; margin: 0; }
+body.super .account-heading strong, body.super .filename, body.super .email, body.super .status { display: none; }
+body.super .short-name { display: inline; font-size: 10px; font-weight: 700; }
+body.super .limits { flex: 1; gap: 4px; }
+body.super .limit { display: flex; align-items: baseline; gap: 3px; }
+body.super .limit-name { font-size: 0; margin: 0; }
+body.super .limit-name::after { content: attr(data-short); font-size: 9px; color: #b7bbc5; }
+body.super .percentage { font-size: 15px; line-height: 18px; letter-spacing: 0; }
+body.super .remaining, body.super .track, body.super .reset, body.super footer { display: none; }

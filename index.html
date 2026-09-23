@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex Limits</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="titlebar">
+    <div class="title"><span class="live-dot"></span><span class="title-text">Codex Limits</span><span id="heartbeat"></span></div>
+    <div class="window-actions">
+      <button id="refresh" title="Refresh now" aria-label="Refresh now">↻</button>
+      <button id="mode" title="Small view" aria-label="Cycle window size">▣</button>
+      <button id="pin" class="active" title="Unpin window" aria-label="Keep above other windows" aria-pressed="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 9V4l1-1V2H7v1l1 1v5c0 1.66-1.34 3-3 3v2h6v7l1 1 1-1v-7h6v-2c-1.66 0-3-1.34-3-3Z"/></svg>
+      </button>
+      <button id="minimize" title="Minimize" aria-label="Minimize">−</button>
+      <button id="close" class="close" title="Close" aria-label="Close">×</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="account" id="account-0">
+      <div class="account-heading">
+        <div><strong>Account 1</strong><span class="short-name">A1</span><span class="filename">hi.json</span><span class="email"></span></div>
+        <span class="status">Connecting…</span>
+      </div>
+      <div class="limits">
+        <div class="limit">
+          <div class="limit-name" data-short="5h">5 hour</div>
+          <div class="amount"><span class="percentage">—</span><span class="remaining">remaining</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="reset">Waiting for usage</div>
+        </div>
+        <div class="limit">
+          <div class="limit-name" data-short="7d">Weekly</div>
+          <div class="amount"><span class="percentage">—</span><span class="remaining">remaining</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="reset">Waiting for usage</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="account" id="account-1">
+      <div class="account-heading">
+        <div><strong>Account 2</strong><span class="short-name">A2</span><span class="filename">hi2.json</span><span class="email"></span></div>
+        <span class="status">Checking file…</span>
+      </div>
+      <div class="limits">
+        <div class="limit">
+          <div class="limit-name" data-short="5h">5 hour</div>
+          <div class="amount"><span class="percentage">—</span><span class="remaining">remaining</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="reset">Waiting for usage</div>
+        </div>
+        <div class="limit">
+          <div class="limit-name" data-short="7d">Weekly</div>
+          <div class="amount"><span class="percentage">—</span><span class="remaining">remaining</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="reset">Waiting for usage</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Updates every 5 seconds · Drag the top bar · Resize from an edge</footer>
+  <script src="renderer.js"></script>
+</body>
+</html>
