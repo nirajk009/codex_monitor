@@ -1,5 +1,6 @@
 const accountStates = [null, null];
 let mode = 'normal';
+let refreshMs = 5000;
 
 function resetLabel(resetAt) {
   if (!resetAt) return 'Reset time unavailable';
@@ -11,11 +12,10 @@ function resetLabel(resetAt) {
 }
 
 function updatedLabel(updatedAt) {
-  const seconds = Math.max(0, Math.floor((Date.now() - updatedAt) / 1000));
-  if (seconds < 2) return mode === 'normal' ? 'Updated just now' : 'Live · now';
-  if (seconds < 60) return mode === 'normal' ? `Updated ${seconds}s ago` : `Live · ${seconds}s`;
-  const minutes = Math.floor(seconds / 60);
-  return mode === 'normal' ? `Updated ${minutes}m ago` : `Live · ${minutes}m`;
+  if (refreshMs === 5000) return 'Live';
+  const time = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' })
+    .format(new Date(updatedAt));
+  return 'Updated ' + time;
 }
 
 function updateStatus(element, update) {
@@ -68,6 +68,7 @@ function renderAccount(update) {
 }
 
 document.getElementById('refresh').addEventListener('click', () => window.widget.refresh());
+document.getElementById('interval').addEventListener('click', () => window.widget.toggleRefreshInterval());
 document.getElementById('mode').addEventListener('click', () => window.widget.cycleMode());
 document.getElementById('minimize').addEventListener('click', () => window.widget.minimize());
 document.getElementById('close').addEventListener('click', () => window.widget.close());
@@ -78,6 +79,17 @@ document.getElementById('pin').addEventListener('click', event => {
   event.currentTarget.setAttribute('aria-pressed', String(pinned));
 });
 window.widget.onUpdate(renderAccount);
+window.widget.onRefreshInterval(milliseconds => {
+  refreshMs = milliseconds;
+  const fast = milliseconds === 5000;
+  const button = document.getElementById('interval');
+  button.textContent = fast ? '5s' : '1m';
+  button.title = fast ? 'Switch to 1-minute updates' : 'Switch to 5-second updates';
+  button.classList.toggle('active', fast);
+  document.getElementById('refresh-description').textContent = fast
+    ? 'Updates every 5 seconds' : 'Updates every minute';
+  for (const update of accountStates) if (update) renderAccount(update);
+});
 window.widget.onMode(value => {
   mode = value;
   document.body.classList.toggle('small', mode === 'small');
@@ -89,20 +101,3 @@ window.widget.onMode(value => {
   button.title = mode === 'normal' ? 'Small view' : mode === 'small' ? 'Super small view' : 'Normal view';
   for (const update of accountStates) if (update) renderAccount(update);
 });
-setInterval(() => {
-  for (const update of accountStates) {
-    if (update?.status === 'ok') {
-      updateStatus(document.getElementById(`account-${update.index}`), update);
-    }
-  }
-  const current = accountStates.filter(update => update?.status === 'ok');
-  const heartbeat = document.getElementById('heartbeat');
-  if (current.length) {
-    const oldest = Math.min(...current.map(update => update.data.updatedAt));
-    const seconds = Math.max(0, Math.floor((Date.now() - oldest) / 1000));
-    heartbeat.textContent = seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m`;
-    heartbeat.title = 'Age of latest usage reading';
-  } else {
-    heartbeat.textContent = '…';
-  }
-}, 1000);

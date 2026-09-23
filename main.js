@@ -5,7 +5,8 @@ const crypto = require('crypto');
 const { readLimits } = require('./usage');
 
 const SESSION_URL = 'https://chatgpt.com/api/auth/session';
-const REFRESH_MS = 5_000;
+const FAST_REFRESH_MS = 5_000;
+const SLOW_REFRESH_MS = 60_000;
 const ACCOUNT_FILES = ['hi.json', 'hi2.json'];
 const MODES = ['normal', 'small', 'super'];
 const MODE_SIZES = {
@@ -17,6 +18,7 @@ const accounts = ACCOUNT_FILES.map((file, index) => ({ file, index, browser: nul
 let widget;
 let refreshing = false;
 let refreshTimer;
+let refreshMs = FAST_REFRESH_MS;
 let saveBoundsTimer;
 let lastRefreshStarted = 0;
 let mode = 'normal';
@@ -46,7 +48,8 @@ function savedWindowState() {
     return {
       bounds: visible ? bounds : null,
       mode: saved.mode || (saved.compact ? 'small' : 'normal'),
-      modeSizes: saved.modeSizes || (saved.expandedSize ? { normal: saved.expandedSize } : {})
+      modeSizes: saved.modeSizes || (saved.expandedSize ? { normal: saved.expandedSize } : {}),
+      refreshMs: saved.refreshMs === SLOW_REFRESH_MS ? SLOW_REFRESH_MS : FAST_REFRESH_MS
     };
   } catch (_) {
     return {};
@@ -56,7 +59,7 @@ function savedWindowState() {
 function saveBounds() {
   if (!widget || widget.isDestroyed() || widget.isMinimized()) return;
   fs.mkdirSync(app.getPath('userData'), { recursive: true });
-  fs.writeFileSync(statePath(), JSON.stringify({ bounds: widget.getBounds(), mode, modeSizes }));
+  fs.writeFileSync(statePath(), JSON.stringify({ bounds: widget.getBounds(), mode, modeSizes, refreshMs }));
 }
 
 function scheduleSaveBounds() {
@@ -68,6 +71,7 @@ function createWidget() {
   const saved = savedWindowState();
   mode = MODE_SIZES[saved.mode] ? saved.mode : 'normal';
   modeSizes = saved.modeSizes || {};
+  refreshMs = saved.refreshMs || FAST_REFRESH_MS;
   secondFileExists = fs.existsSync(path.join(cookieDirectory(), ACCOUNT_FILES[1]));
   const dimensions = MODE_SIZES[mode];
   widget = new BrowserWindow({
@@ -124,6 +128,19 @@ function cycleMode() {
   widget.setSize(Math.max(dimensions.minWidth, width), Math.max(dimensions.minHeight, height));
   widget.webContents.send('view-mode', mode);
   saveBounds();
+}
+
+function startRefreshTimer() {
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(refreshAll, refreshMs);
+}
+
+function toggleRefreshInterval() {
+  refreshMs = refreshMs === FAST_REFRESH_MS ? SLOW_REFRESH_MS : FAST_REFRESH_MS;
+  startRefreshTimer();
+  widget.webContents.send('refresh-interval', refreshMs);
+  saveBounds();
+  refreshAll();
 }
 
 function sendUpdate(account, status, message, data = null) {
@@ -259,11 +276,13 @@ app.whenReady().then(() => {
   ipcMain.on('close', () => widget.close());
   ipcMain.on('always-on-top', (_event, value) => widget.setAlwaysOnTop(!!value, 'floating'));
   ipcMain.on('cycle-mode', cycleMode);
+  ipcMain.on('toggle-refresh-interval', toggleRefreshInterval);
   widget.webContents.once('did-finish-load', () => {
     widget.webContents.send('view-mode', mode);
+    widget.webContents.send('refresh-interval', refreshMs);
     refreshAll();
   });
-  refreshTimer = setInterval(refreshAll, REFRESH_MS);
+  startRefreshTimer();
 });
 
 app.on('window-all-closed', () => {
