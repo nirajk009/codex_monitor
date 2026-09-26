@@ -12,6 +12,7 @@ function resetLabel(resetAt) {
 }
 
 function updatedLabel(updatedAt) {
+  if (refreshMs === 0) return 'Paused';
   if (refreshMs === 5000) return 'Live';
   const time = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' })
     .format(new Date(updatedAt));
@@ -82,12 +83,16 @@ window.widget.onUpdate(renderAccount);
 window.widget.onRefreshInterval(milliseconds => {
   refreshMs = milliseconds;
   const fast = milliseconds === 5000;
+  const paused = milliseconds === 0;
   const button = document.getElementById('interval');
-  button.textContent = fast ? '5s' : '1m';
-  button.title = fast ? 'Switch to 1-minute updates' : 'Switch to 5-second updates';
+  button.textContent = fast ? '5s' : paused ? 'P' : '1m';
+  button.title = fast ? 'Switch to 1-minute updates'
+    : paused ? 'Resume 5-second updates' : 'Pause automatic updates';
   button.classList.toggle('active', fast);
+  document.body.classList.toggle('paused', paused);
   document.getElementById('refresh-description').textContent = fast
-    ? 'Updates every 5 seconds' : 'Updates every minute';
+    ? 'Updates every 5 seconds' : paused ? 'Polling paused · Refresh manually with ↻'
+      : 'Updates every minute';
   for (const update of accountStates) if (update) renderAccount(update);
 });
 window.widget.onMode(value => {

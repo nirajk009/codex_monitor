@@ -7,6 +7,7 @@ const { readLimits } = require('./usage');
 const SESSION_URL = 'https://chatgpt.com/api/auth/session';
 const FAST_REFRESH_MS = 5_000;
 const SLOW_REFRESH_MS = 60_000;
+const PAUSED_REFRESH_MS = 0;
 const ACCOUNT_FILES = ['hi.json', 'hi2.json'];
 const MODES = ['normal', 'small', 'super'];
 const MODE_SIZES = {
@@ -49,7 +50,8 @@ function savedWindowState() {
       bounds: visible ? bounds : null,
       mode: saved.mode || (saved.compact ? 'small' : 'normal'),
       modeSizes: saved.modeSizes || (saved.expandedSize ? { normal: saved.expandedSize } : {}),
-      refreshMs: saved.refreshMs === SLOW_REFRESH_MS ? SLOW_REFRESH_MS : FAST_REFRESH_MS
+      refreshMs: [FAST_REFRESH_MS, SLOW_REFRESH_MS, PAUSED_REFRESH_MS].includes(saved.refreshMs)
+        ? saved.refreshMs : FAST_REFRESH_MS
     };
   } catch (_) {
     return {};
@@ -71,7 +73,7 @@ function createWidget() {
   const saved = savedWindowState();
   mode = MODE_SIZES[saved.mode] ? saved.mode : 'normal';
   modeSizes = saved.modeSizes || {};
-  refreshMs = saved.refreshMs || FAST_REFRESH_MS;
+  refreshMs = saved.refreshMs ?? FAST_REFRESH_MS;
   secondFileExists = fs.existsSync(path.join(cookieDirectory(), ACCOUNT_FILES[1]));
   const dimensions = MODE_SIZES[mode];
   widget = new BrowserWindow({
@@ -99,7 +101,7 @@ function createWidget() {
   widget.on('resize', scheduleSaveBounds);
   widget.on('move', scheduleSaveBounds);
   widget.on('focus', () => {
-    if (Date.now() - lastRefreshStarted > 2500) refreshAll();
+    if (refreshMs !== PAUSED_REFRESH_MS && Date.now() - lastRefreshStarted > 2500) refreshAll();
   });
   widget.on('closed', () => app.quit());
   widget.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
@@ -132,15 +134,16 @@ function cycleMode() {
 
 function startRefreshTimer() {
   clearInterval(refreshTimer);
-  refreshTimer = setInterval(refreshAll, refreshMs);
+  if (refreshMs !== PAUSED_REFRESH_MS) refreshTimer = setInterval(refreshAll, refreshMs);
 }
 
 function toggleRefreshInterval() {
-  refreshMs = refreshMs === FAST_REFRESH_MS ? SLOW_REFRESH_MS : FAST_REFRESH_MS;
+  refreshMs = refreshMs === FAST_REFRESH_MS ? SLOW_REFRESH_MS
+    : refreshMs === SLOW_REFRESH_MS ? PAUSED_REFRESH_MS : FAST_REFRESH_MS;
   startRefreshTimer();
   widget.webContents.send('refresh-interval', refreshMs);
   saveBounds();
-  refreshAll();
+  if (refreshMs !== PAUSED_REFRESH_MS) refreshAll();
 }
 
 function sendUpdate(account, status, message, data = null) {
@@ -280,7 +283,7 @@ app.whenReady().then(() => {
   widget.webContents.once('did-finish-load', () => {
     widget.webContents.send('view-mode', mode);
     widget.webContents.send('refresh-interval', refreshMs);
-    refreshAll();
+    if (refreshMs !== PAUSED_REFRESH_MS) refreshAll();
   });
   startRefreshTimer();
 });

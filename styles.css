@@ -12,6 +12,7 @@ button { font: inherit; }
 .title { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 650; }
 .short-name { display: none; }
 .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #2ac86d; box-shadow: 0 0 10px #2ac86d77; }
+body.paused .live-dot { background: #888c95; box-shadow: none; }
 .window-actions { height: 100%; display: flex; -webkit-app-region: no-drag; }
 .window-actions button {
   width: 35px; height: 100%; border: 0; background: transparent; color: #a9abb3;
@@ -22,6 +23,7 @@ button { font: inherit; }
 .window-actions #interval { font-size: 11px; font-weight: 700; }
 .window-actions #pin svg { width: 16px; height: 16px; fill: currentColor; vertical-align: middle; }
 .window-actions .active { color: #39c978; }
+body.paused .window-actions #interval { color: #f0ad4e; }
 main { height: calc(100% - 65px); padding: 11px 12px 7px; overflow: auto; }
 .account {
   background: #1c1e22; border: 1px solid #303238; border-radius: 12px;
@@ -35,6 +37,7 @@ main { height: calc(100% - 65px); padding: 11px 12px 7px; overflow: auto; }
 .email { font-size: 10px; color: #8d919b; overflow: hidden; text-overflow: ellipsis; }
 .status { font-size: 10px; color: #aaaeb6; flex: none; max-width: 52%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .status.ok { color: #50d086; }
+body.paused .status.ok { color: #f0ad4e; }
 .status.error { color: #f3ad72; }
 .limits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .limit { min-width: 0; }
